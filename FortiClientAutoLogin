@@ -2,7 +2,7 @@
 <script language="jscript">
 // Настройка кодировки
 var fso = new ActiveXObject("Scripting.FileSystemObject");
-var logFile = fso.OpenTextFile("D:\\MG\\FortiClient\\VPNLog.txt", 8, true, -1); // 8 - для добавления, true - создать если не существует, -1 - Unicode
+var logFile = fso.OpenTextFile("D:\\FortiClient\\VPNLog.txt", 8, true, -1); // 8 - для добавления, true - создать если не существует, -1 - Unicode
 
 // Конфигурация
 var tunnelName = "";
