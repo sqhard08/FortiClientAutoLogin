@@ -1,0 +1,81 @@
+<job>
+<script language="jscript">
+// Настройка кодировки
+var fso = new ActiveXObject("Scripting.FileSystemObject");
+var logFile = fso.OpenTextFile("D:\\MG\\FortiClient\\VPNLog.txt", 8, true, -1); // 8 - для добавления, true - создать если не существует, -1 - Unicode
+
+// Конфигурация
+var tunnelName = "";
+var userName = "";
+var password = "";
+var fortiClientPath = "C:\\Program Files\\Fortinet\\FortiClient\\FortiClient.exe"; // Измените путь, если необходимо
+
+// Функция для записи в лог
+function writeLog(message) {
+    var now = new Date();
+    logFile.WriteLine(now.toLocaleString() + ": " + message);
+}
+
+// Открываем FortiClient VPN
+try {
+    var shell = new ActiveXObject("WScript.Shell");
+    shell.Run('"' + fortiClientPath + '"');
+    writeLog("FortiClient VPN launched");
+    // Ждем немного, чтобы FortiClient успел запуститься
+    WScript.Sleep(5000);
+} catch (e) {
+    writeLog("Error launching FortiClient VPN: " + e.message);
+    WScript.Quit(1);
+}
+
+// Создаем объект VPN
+try {
+    var VPN1 = WScript.CreateObject("FortiClient.VPN");
+    writeLog("VPN object created");
+} catch (e) {
+    writeLog("Error creating VPN object: " + e.message);
+    WScript.Quit(1);
+}
+
+// Подключаем обработчики событий
+WScript.ConnectObject(VPN1, "VPN1_");
+
+// Функция для подключения
+function connectVPN() {
+    writeLog("Connecting to VPN...");
+    VPN1.Connect(tunnelName);
+}
+
+// Обработчики событий
+function VPN1_OnConnect(bstrTunnelName) {
+    writeLog("Connected to " + bstrTunnelName);
+    logFile.Close();
+    WScript.Quit(0);
+}
+
+function VPN1_OnDisconnect(bstrTunnelName) {
+    writeLog("Disconnected from " + bstrTunnelName);
+    logFile.Close();
+    WScript.Quit(0);
+}
+
+function VPN1_OnXAuthRequest(bstrTunnelName) {
+    writeLog("Authentication request");
+    VPN1.SendXAuthResponse(bstrTunnelName, userName, password, false);
+}
+
+function VPN1_OnOutOfCompliance(bAV, bAS, bFW, bWF) {
+    writeLog("VPN is out of compliance");
+    logFile.Close();
+    WScript.Quit(1);
+}
+
+// Запускаем подключение
+connectVPN();
+
+// Ожидаем события
+while (true) {
+    WScript.Sleep(500);
+}
+</script>
+</job>
