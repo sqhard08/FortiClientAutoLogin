@@ -1,4 +1,4 @@
-4<job>
+<job>
 <script language="jscript">
 // Настройка кодировки
 var fso = new ActiveXObject("Scripting.FileSystemObject");
